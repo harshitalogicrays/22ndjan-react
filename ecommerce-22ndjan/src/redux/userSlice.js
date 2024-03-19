@@ -1,31 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice ,nanoid} from "@reduxjs/toolkit";
 
 const userSlice=createSlice({
     name:"user",
     initialState:{users:[]},
     reducers:{
         ADD_USER:(state,action)=>{
-            // console.log("add user",action.payload)
-          postdata(action.payload)
+            console.log("add user",action.payload)
+        //   postdata(action.payload)
+        // state.users=[...state.users,{...action.payload,id:Date.now()}]
+        state.users=[...state.users,{...action.payload,id:nanoid()}]
         },
-        REMOVE_USER(state,action){}
+        REMOVE_USER_ID(state,action){
+            let filterproducts=state.users.filter((user)=>user.id != action.payload)
+            state.users=filterproducts
+        },
+        REMOVE_USER_INDEX(state,action){
+            state.users.splice(action.payload,1)
+        }
     }
 })
 console.log(userSlice.actions)
-export const {ADD_USER,REMOVE_USER}=userSlice.actions
+export const {ADD_USER,REMOVE_USER_ID,REMOVE_USER_INDEX}=userSlice.actions
 export default userSlice.reducer
 
+export const selectUsers=state=>state.user.users
 
-let postdata=async(data)=>{
-    // axios.post("https://65f5768841d90c1c5e098cc5.mockapi.io/users",action.payload)
-    // .then(()=>{
-    //     alert("data added")
-    // }).catch(err=>console.log(err))
-
-    try{
-       await axios.post("https://65f5768841d90c1c5e098cc5.mockapi.io/users",data)
-       alert("data added")
-    }
-    catch(err){console.log(err)}
-}

@@ -1,21 +1,12 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { REMOVE_USER_ID, REMOVE_USER_INDEX, selectUsers } from '../redux/userSlice'
 
 const AllUsers = () => {
-    let [users,setUsers]=useState([])
-    let getData=async()=>{
-        try{
-            let res=await axios.get("https://65f5768841d90c1c5e098cc5.mockapi.io/users")
-            console.log(res.data)
-            setUsers(res.data)
-        }
-        catch(err){alert(err)}
-      
-    }
-  
-    useEffect(()=>{
-        getData()
-    },[])
+    // const users=useSelector(state=>state.user.users)
+    const users=useSelector(selectUsers)
+    const dispatch=useDispatch()
   return (
     <>
         <h1>All Users</h1>
@@ -24,6 +15,7 @@ const AllUsers = () => {
                 <thead>
                     <tr>
                         <th scope="col">Sr. No</th>
+                        <th>ID</th>
                         <th scope="col">Username</th>
                         <th scope="col">Email</th>
                         <th>Password</th>
@@ -32,19 +24,21 @@ const AllUsers = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {users.length==0 && <tr><td colSpan={5}>No user found</td></tr>}
+                    {users.length==0 && <tr><td colSpan={7}>No user found</td></tr>}
                     {users.map((user,i)=>
                     <tr key={user.id}>
                         <td scope="row">{i+1}</td>
+                        <td>{user.id}</td>
                         <td>{user.username}</td>
                         <td>{user.email}</td>
                         <td>{user.password}</td>
                         <td>{user.role}</td>
-                        <td><button
-                            type="button"
-                            className="btn btn-danger"
-                        >
-                            Remove
+                        <td><button  type="button" className="btn btn-danger me-2"  
+                        onClick={()=>dispatch(REMOVE_USER_ID(user.id))}>
+                            Remove using id </button>
+                        <button  type="button" className="btn btn-danger me-2" 
+                        onClick={()=>dispatch(REMOVE_USER_INDEX(i))}>
+                            Remove using index
                         </button>
                         </td>
                         </tr>

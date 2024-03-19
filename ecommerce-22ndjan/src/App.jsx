@@ -7,14 +7,13 @@ function App() {
     hello react<br/>
     <div className="container">
       <div className="row">
-        <div className="col-6">
         <AddUser/>
         </div>
-        <div className="col-6">
+<div className="row">
           <AllUsers/>
         </div>
       </div>
-    </div>
+
 
   </>
   )
