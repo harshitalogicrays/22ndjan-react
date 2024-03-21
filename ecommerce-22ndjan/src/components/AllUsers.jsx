@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { REMOVE_USER_ID, REMOVE_USER_INDEX, selectUsers } from '../redux/userSlice'
 
 const AllUsers = () => {
-    // const users=useSelector(state=>state.user.users)
+    // const users=useSelector(state=>state.user.users) //users=[{},{},{}]
     const users=useSelector(selectUsers)
     const dispatch=useDispatch()
   return (

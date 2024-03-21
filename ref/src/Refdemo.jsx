@@ -5,6 +5,7 @@ const Refdemo = () => {
     let countRef=useRef()
     let handleClick=()=>{
         textRef.current.style.color="blue"
+        textRef.current.style.background="yellow"
         alert(textRef.current.value)
     }
     useEffect(()=>{
