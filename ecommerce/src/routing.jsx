@@ -5,6 +5,7 @@ import Login from "./features/Login";
 import Register from "./features/Register";
 import Pagenotfound from "./features/Pagenotfound";
 import DefaultDashboard from "./features/DefaultDashboard";
+import Products from "./features/Products";
 
  const router=createBrowserRouter([
     {
@@ -13,7 +14,7 @@ import DefaultDashboard from "./features/DefaultDashboard";
             {path:'', element:<DefaultDashboard><Home/></DefaultDashboard> },
             {path:'login', element:<Login/>},
             {path:'register', element:<Register/>},
-
+            {path:'products', element:<DefaultDashboard><Products/></DefaultDashboard>},
 
             {path:'*', element:<Pagenotfound/>}
         ]
