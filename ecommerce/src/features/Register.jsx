@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../firebase/config'
+import { auth, db } from '../firebase/config'
 import { toast } from 'react-toastify'
+import { Timestamp, doc, setDoc } from 'firebase/firestore'
 const Register = () => {
   let [user,setUser]=useState({username:'',email:'',password:'',cpassword:'',role:'user'})
     let [errors,setErrors]=useState({})
@@ -16,10 +17,12 @@ const Register = () => {
         if(Object.keys(myerrors).length == 0){
             setErrors({})         
             createUserWithEmailAndPassword(auth, user.email, user.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                toast.success("registered successfully")
-                navigate('/')
+            .then(async(userCredential) => {
+                const user1 = userCredential.user;
+                  const docRef = doc(db,"users",user1.uid)
+                  await setDoc(docRef,{...user,createdAt:Timestamp.now().toMillis()})
+                    toast.success("registered successfully")
+                    navigate('/')
             })
             .catch((error) => {
                toast.error(error.message)

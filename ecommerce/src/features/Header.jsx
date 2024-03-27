@@ -1,5 +1,5 @@
-import { signOut } from 'firebase/auth';
-import React from 'react'
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import React, { useEffect } from 'react'
 import { Button, Form, Image, InputGroup } from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -7,10 +7,13 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { FaArrowAltCircleLeft, FaHome, FaList, FaListAlt, FaLock, FaPenAlt, FaSearch, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../firebase/config';
+import { auth, db } from '../firebase/config';
 import { toast } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginuser, logoutuser, selectuserName } from '../redux/authSlice';
+import { doc, getDoc } from 'firebase/firestore';
 const Header = () => {
-
+  const dispatch=useDispatch()
   const navigate=useNavigate()
   let handleLogout=()=>{
     signOut(auth).then(() => {
@@ -20,6 +23,30 @@ const Header = () => {
       toast.error(error.message)
     });
   }
+
+  useEffect(()=>{
+    onAuthStateChanged(auth, async(user) => {
+      if (user) {
+              const uid = user.uid;
+              const docRef = doc(db,"users",uid)    
+              const docSnap=await getDoc(docRef)  
+              let obj={
+                userEmail:docSnap.data().email,
+                userName:docSnap.data().username,
+                userId:uid,
+                userRole:docSnap.data().role
+              } 
+              dispatch(loginuser(obj))
+      } 
+      else {
+        dispatch(logoutuser())
+      }
+    });
+  },[auth])
+
+
+  const username=useSelector(selectuserName)
+
   return (
     <Navbar expand="lg" bg="dark" data-bs-theme="dark">
     <Container fluid>
@@ -55,7 +82,7 @@ const Header = () => {
                 <Nav.Link as={Link} to='/login'><FaLock/> Login</Nav.Link>
                 <Nav.Link as={Link} to='/register'><FaPenAlt/> Register</Nav.Link>
                 <Nav.Link href="#home"><FaListAlt/> My Orders</Nav.Link>
-                <Nav.Link href="#home">Welcome</Nav.Link>
+                <Nav.Link href="#home">Welcome {username}</Nav.Link>
                 <Nav.Link onClick={handleLogout}><FaArrowAltCircleLeft/> Logout</Nav.Link>
         </Nav>
       </Navbar.Collapse>

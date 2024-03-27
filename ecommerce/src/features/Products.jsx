@@ -8,7 +8,8 @@ const Products = () => {
   {id:104,name:'product4',price:8000,image:'images/d.jpg',qty:14},
   {id:105,name:'product5',price:1000,image:'images/a.jpg',qty:1} ]
   return (
-   <> <ProductList products={products}/>
+    <>
+   <ProductList products={products}/>
    </>
   )
 }

@@ -2,8 +2,10 @@ import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 
 import React, { useState } from 'react'
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
-import { auth } from '../firebase/config'
+import { auth, db } from '../firebase/config'
 import { toast } from 'react-toastify'
+import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore'
+import Loader from './Loader'
 
 const Login = () => {
 let initialState={email:'',password:''}
@@ -16,11 +18,24 @@ let initialState={email:'',password:''}
       e.preventDefault()
       setIsLoading(true)
       signInWithEmailAndPassword(auth, user.email, user.password)
-            .then((userCredential) => {
-                const user1 = userCredential.user;                
-                toast.success("loggedin successfully")
-                navigate('/')
-                setIsLoading(false)
+            .then(async(userCredential) => {
+                const user1 = userCredential.user;  
+                const docRef = doc(db,"users",user1.uid)    
+                const docSnap=await getDoc(docRef)    
+                if(docSnap.exists()){
+                    // console.log(docSnap.data())
+                    if(docSnap.data().role=="admin") {
+                        navigate('/admin')
+                        toast.success("loggedin successfully")
+                        setIsLoading(false)
+                    }
+                    else if(docSnap.data().role=="user") {
+                        navigate('/')
+                        toast.success("loggedin successfully")
+                        setIsLoading(false)
+                    }                   
+                }   
+               
             })
             .catch((error) => {
                 toast.error(error.message)
@@ -31,8 +46,15 @@ let initialState={email:'',password:''}
       const provider = new GoogleAuthProvider();
         let loginwithgoogle=()=>{
             signInWithPopup(auth, provider)
-            .then((result) => {
+            .then(async(result) => {
                     const user = result.user;
+                    console.log(user)
+                    const docRef = doc(db,"users",user.uid)
+                    await setDoc(docRef,{
+                        username:user.displayName,
+                        email:user.email,
+                        role:"user",
+                        createdAt:Timestamp.now().toMillis()})
                     toast.success("loggedin successfully")
                     navigate('/')
            
@@ -43,7 +65,7 @@ let initialState={email:'',password:''}
   return (
     <Container className='mt-5'>
        
-        {isLoading &&  <h1>Loading</h1>}
+        {isLoading &&  <Loader/>}
     <Row className='shadow p-3'>
     <Col>
         <img src='/src/assets/login.png' height={400} />
