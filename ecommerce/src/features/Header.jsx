@@ -12,17 +12,10 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginuser, logoutuser, selectuserName } from '../redux/authSlice';
 import { doc, getDoc } from 'firebase/firestore';
+import { Logout, ShowonLogin, ShowonLogout } from './hiddenlinks';
 const Header = () => {
   const dispatch=useDispatch()
   const navigate=useNavigate()
-  let handleLogout=()=>{
-    signOut(auth).then(() => {
-      toast.success('LoggedOut Successfully')
-      navigate('/')
-    }).catch((error) => {
-      toast.error(error.message)
-    });
-  }
 
   useEffect(()=>{
     onAuthStateChanged(auth, async(user) => {
@@ -79,11 +72,16 @@ const Header = () => {
                             <span class="badge rounded-pill text-bg-danger" >0</span >
                             
                 </Nav.Link>
-                <Nav.Link as={Link} to='/login'><FaLock/> Login</Nav.Link>
-                <Nav.Link as={Link} to='/register'><FaPenAlt/> Register</Nav.Link>
-                <Nav.Link href="#home"><FaListAlt/> My Orders</Nav.Link>
-                <Nav.Link href="#home">Welcome {username}</Nav.Link>
-                <Nav.Link onClick={handleLogout}><FaArrowAltCircleLeft/> Logout</Nav.Link>
+                <ShowonLogout>
+                    <Nav.Link as={Link} to='/login'><FaLock/> Login</Nav.Link>
+                    <Nav.Link as={Link} to='/register'><FaPenAlt/> Register</Nav.Link>
+                </ShowonLogout>
+               <ShowonLogin>
+                  <Nav.Link href="#home"><FaListAlt/> My Orders</Nav.Link>
+                  <Nav.Link href="#home">Welcome {username}</Nav.Link>
+                  <Nav.Link > <Logout/> </Nav.Link>
+               </ShowonLogin>
+                
         </Nav>
       </Navbar.Collapse>
     </Container>
