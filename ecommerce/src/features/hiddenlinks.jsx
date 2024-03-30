@@ -1,9 +1,9 @@
 import { useSelector } from "react-redux"
-import { selectIsLoggedIn } from "../redux/authSlice"
+import { selectIsLoggedIn, selectuserRole } from "../redux/authSlice"
 import { FaArrowAltCircleLeft } from "react-icons/fa"
 import { signOut } from "firebase/auth"
 import { auth } from "../firebase/config"
-import { useNavigate } from "react-router-dom"
+import {  Navigate, useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 
 export const ShowonLogout=({children})=>{
@@ -34,4 +34,19 @@ export const Logout=()=>{
     return(
         <span onClick={handleLogout}><FaArrowAltCircleLeft/> Logout</span>
     )
+}
+
+
+export const Protected=({children})=>{
+    const isLoggedIn=useSelector(selectIsLoggedIn)
+    const role=useSelector(selectuserRole)
+    if(isLoggedIn && role=="user") return children
+    else return <Navigate to='/login' replace={true}/>
+}
+
+export const ProtectedAdmin=({children})=>{
+    const isLoggedIn=useSelector(selectIsLoggedIn)
+    const role=useSelector(selectuserRole)
+    if(isLoggedIn && role=="admin") return children
+    else return <Navigate to='/login' replace={true}/>
 }

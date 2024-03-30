@@ -1,5 +1,10 @@
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useState } from 'react'
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap'
+import { db, storage } from '../../firebase/config'
+import { toast } from 'react-toastify'
+import { Timestamp, addDoc, collection } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
 
 const AddProduct = () => {
     const categories=[  {id:1,name:'Cloths',desc:'fghjfhgf'},
@@ -11,14 +16,37 @@ const AddProduct = () => {
 
     let initialState={name:'',brand:'',category:'',price:'',stock:'',image:'',desc:''}
     const [product,setProduct]=useState({...initialState})
+    const [uploadprogress,setUploadProgress]=useState(0)
+    const navigate=useNavigate()
 
     let handleImage=(e)=>{
-        console.log(e.target.files)
+        // console.log(e.target.files)
+        let file=e.target.files[0]
+           const storageRef = ref(storage,`22ndreact/products/${Date.now()}`)
+           const uploadTask=uploadBytesResumable(storageRef,file)
+           uploadTask.on("state_changed",(snapshot)=>{
+                let progress=(snapshot.bytesTransferred /snapshot.totalBytes) *100
+                setUploadProgress(progress)
+           },(error)=>{toast.error(error.message)},
+           ()=>{
+                getDownloadURL(uploadTask.snapshot.ref).then((url)=>{
+                    console.log(url)
+                    setProduct({...product,image:url})  
+                })
+           })
     }
 
-    let handleSubmit=(e)=>{
+    let handleSubmit=async(e)=>{
         e.preventDefault()
-        alert(JSON.stringify(product))
+        try{
+            const docRef=collection(db,"products")
+            await addDoc(docRef,{...product,createdAt:Timestamp.now().toMillis()})
+            toast.success("product added")
+            navigate('/admin/viewproducts')
+        }
+        catch(error){
+            toast.error(error.message)
+        }
     }
   return (
     <Container>
@@ -48,7 +76,7 @@ const AddProduct = () => {
                             </Form.Group>
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className='mb-3'>
                             <Col xs={6}>
                             <Form.Group>
                             <Form.Label>Price</Form.Label>
@@ -62,6 +90,12 @@ const AddProduct = () => {
                             </Form.Group>
                             </Col>
                         </Row>
+    {uploadprogress > 0 && 
+     <div class="progress">
+    <div class="progress-bar" style={{width: `${uploadprogress}%`}}>
+      {uploadprogress < 100 ? `uploading ${uploadprogress}%` : `uploaded ${uploadprogress}%`}
+      </div>
+      </div>}
                         <Form.Group>
                             <Form.Label>Image</Form.Label>
                             <Form.Control name="image" type="file" onChange={handleImage}></Form.Control>
